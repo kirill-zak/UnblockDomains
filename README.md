@@ -1,5 +1,5 @@
 # UnblockDomains
-OpenWRT scripts for unblock domains 
+OpenWRT scripts for unblock domains. Tested with OpenWRT 15.05.1 (CHAOS CALMER)
 
 # How to use
 Few steps
