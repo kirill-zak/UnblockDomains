@@ -5,7 +5,7 @@ SCRIPT_DIR=`pwd`
 CONFIG_PATH="$SCRIPT_DIR/settings.conf"
 DOMAINS_PATH="$SCRIPT_DIR/domains.conf"
 
-## Check and read configuration file 
+## Check and read configuration file
 if [ ! -f "$CONFIG_PATH" ]; then
     echo "Configuration file is not exist!" >&2
     exit 1
@@ -39,8 +39,15 @@ do
 
     for IP in ${DOMAIN_IPS}
     do
-        echo " * Adding route for IP [$IP]"
-        route add -net "$IP" dev "$TUN"
+        IP_EXIST="$(ip route get "$IP" | awk 'NR==1{print $3}')"
+
+        if [ "$IP_EXIST" ==  "$TUN" ]; then
+          echo "Route for IP [$IP] already exist" >&2
+        else
+          echo " * Adding route for IP [$IP]" >&2
+          route add -net "$IP" dev "$TUN"
+        fi
+
     done
 
     echo "End of process domain [$DOMAIN]" >&2
