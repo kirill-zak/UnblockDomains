@@ -1,11 +1,19 @@
 #!/bin/sh
 
-## Intial settings
+#######################################
+## Intial settings                   ##
+#######################################
+
 SCRIPT_DIR=`pwd`
 CONFIG_PATH="$SCRIPT_DIR/settings.conf"
 DOMAINS_PATH="$SCRIPT_DIR/domains.conf"
+DNS_PATH="$SCRIPT_DIR/dns.conf"
 
-## Check and read configuration file
+#######################################
+## Check and read configuration file ##
+#######################################
+
+## Settings file
 if [ ! -f "$CONFIG_PATH" ]; then
     echo "Configuration file is not exist!" >&2
     exit 1
@@ -25,12 +33,38 @@ if [ ! -f "$DOMAINS_PATH" ]; then
     exit 1
 fi
 
-## Add Google DNS into route table
-route add 8.8.8.8/32 dev $TUN;
-route add 8.8.4.4/32 dev $TUN;
-route add 77.88.8.8/32 dev $TUN;
+## Check DNS configuration file
+if [ ! -f "$DNS_PATH" ]; then
+    echo "DNS file is not exist" >&2
+    exit 1
+fi
 
-## Process domains
+#######################################
+## Process dns                       ##
+#######################################
+
+while read -r DNS
+do
+    echo "Start to process DNS [$DNS]..." >&2
+
+    ## Check on exist route to DNS
+    DNS_EXIST="$(ip route get "$DNS" | awk 'NR==1{print $3}')"
+
+    if [ "$DNS_EXIST" ==  "$TUN" ]; then
+      echo "Route for DNS [$DNS] already exist" >&2
+    else
+      echo " * Adding route for DNS [$DNS]" >&2
+      route add "$DNS" dev "$TUN"
+    fi
+
+    echo "End of process DNS [$DNS]" >&2
+    echo "" >&2
+done < "$DNS_PATH"
+
+#######################################
+## Process domains                   ##
+#######################################
+
 while read -r DOMAIN
 do
     echo "Start to process domain [$DOMAIN]..." >&2

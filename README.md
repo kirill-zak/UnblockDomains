@@ -41,3 +41,6 @@ Add list of domains into `domains.conf`
 ./unblocker.sh
 ```
 
+## Optional
+
+You can add you own DNS server - just add it into `dns.conf`.
